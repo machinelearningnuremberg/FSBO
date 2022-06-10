@@ -8,7 +8,6 @@ This Repo contains the implementation of [FSBO]() applied to [HPO-B]() benchmark
 
 `
 python fsbo_metatrain.py --space_id 6767
-
 `
 
 * Test on search space and dataset:
@@ -16,8 +15,6 @@ python fsbo_metatrain.py --space_id 6767
 `
 python fsbo_test.py --space 6767 --dataset_id 31
 `
-
-
 
 * Aggregate results in a JSON and plot results:
 
