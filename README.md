@@ -48,7 +48,8 @@ python fsbo_benchmark_plot.py
 
 This code is a refactoring of the original code used in [HPO-B](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/ec8956637a99787bd197eacd77acce5e-Abstract-round2.html) paper.
 
-`
+```
+
 @article{pineda2021hpob,
   author    = {Sebastian Pineda{-}Arango and
                Hadi S. Jomaa and
@@ -59,6 +60,7 @@ This code is a refactoring of the original code used in [HPO-B](https://datasets
   journal   = {Neural Information Processing Systems (NeurIPS) Track on Datasets and Benchmarks},
   year      = {2021}
 }
-`
+```
+
 
 
