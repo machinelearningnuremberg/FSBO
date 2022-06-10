@@ -5,6 +5,7 @@ This Repo contains the implementation of [FSBO]() applied to [HPO-B]() benchmark
 ## Usage
 
 * Train on search space:
+
 `
 python fsbo_metatrain.py --space_id 6767
 
