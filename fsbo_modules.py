@@ -227,9 +227,7 @@ class FSBO(nn.Module):
             self.train_loop(epoch, optimizer, scheduler)
         
     def train_loop(self, epoch, optimizer, scheduler=None):
-        
-        #if scheduler_fn:
-        #    scheduler = scheduler_fn(optimizer,len(self.tasks))
+
         self.epoch_end()
         assert(self.training)
         for task in self.tasks:
@@ -287,8 +285,7 @@ class FSBO(nn.Module):
         return mse,loss
 
     def get_batch(self,task):
-        # we want to fit the gp given context info to new observations
-        # task is an algorithm/dataset pair
+
         Lambda,response =     np.array(self.train_data[task]["X"]), MinMaxScaler().fit_transform(np.array(self.train_data[task]["y"])).reshape(-1,)
 
         card, dim = Lambda.shape
@@ -302,9 +299,7 @@ class FSBO(nn.Module):
         return inputs, labels
         
     def get_support_and_queries(self,task, train=False):
-        
-        # task is an algorithm/dataset pair
-        
+                
         hpo_data = self.valid_data if not train else self.train_data
         Lambda,response =     np.array(hpo_data[task]["X"]), MinMaxScaler().fit_transform(np.array(hpo_data[task]["y"])).reshape(-1,)
         card, dim = Lambda.shape
@@ -321,7 +316,6 @@ class FSBO(nn.Module):
     (totorch(query_x,self.device),totorch(query_y.reshape(-1,),self.device))
         
     def save_checkpoint(self, checkpoint):
-        # save state
         gp_state_dict         = self.model.state_dict()
         likelihood_state_dict = self.likelihood.state_dict()
         nn_state_dict         = self.feature_extractor.state_dict()
