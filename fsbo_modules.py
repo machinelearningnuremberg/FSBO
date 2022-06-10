@@ -25,6 +25,7 @@ RandomTaskGenerator = np.random.RandomState(413)
 
 
 class DeepKernelGP(nn.Module):
+    
     def __init__(self, input_size, log_dir,seed, hidden_size = [32,32,32,32],
                          max_patience = 16, kernel="matern", ard = False, nu =2.5, loss_tol = 0.0001,
                          lr = 0.001, load_model = False, checkpoint = None, epochs = 10000,
@@ -110,6 +111,7 @@ class DeepKernelGP(nn.Module):
         return losses
     
     def load_checkpoint(self, checkpoint):
+
         ckpt = torch.load(checkpoint,map_location=torch.device(self.device))
         self.model.load_state_dict(ckpt['gp'],strict=False)
         self.likelihood.load_state_dict(ckpt['likelihood'],strict=False)
@@ -156,6 +158,7 @@ class DeepKernelGP(nn.Module):
 
     
 class FSBO(nn.Module):
+
     def __init__(self, train_data,valid_data, checkpoint_path, batch_size = 64, test_batch_size = 64,
                  n_inner_steps = 1, kernel = "matern", ard = False, nu=2.5, hidden_size = [32,32,32,32] ):
         super(FSBO, self).__init__()
@@ -187,6 +190,7 @@ class FSBO(nn.Module):
         
         
     def setup_writers(self,):
+
         train_log_dir = os.path.join(self.checkpoint_path,"train")
         os.makedirs(train_log_dir,exist_ok=True)
         self.train_summary_writer = SummaryWriter(train_log_dir)
@@ -220,7 +224,6 @@ class FSBO(nn.Module):
     def meta_train(self, epochs = 50000, lr = 0.0001):
 
         optimizer = torch.optim.Adam(self.parameters(), lr=lr)
-        #scheduler_fn = lambda x,y: torch.optim.lr_scheduler.CosineAnnealingLR(x, y, eta_min=1e-7)
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, epochs, eta_min=1e-7)
 
         for epoch in range(epochs):
@@ -316,28 +319,29 @@ class FSBO(nn.Module):
     (totorch(query_x,self.device),totorch(query_y.reshape(-1,),self.device))
         
     def save_checkpoint(self, checkpoint):
+
         gp_state_dict         = self.model.state_dict()
         likelihood_state_dict = self.likelihood.state_dict()
         nn_state_dict         = self.feature_extractor.state_dict()
         torch.save({'gp': gp_state_dict, 'likelihood': likelihood_state_dict, 'net':nn_state_dict}, checkpoint)
 
     def load_checkpoint(self, checkpoint):
+
         ckpt = torch.load(checkpoint)
         self.model.load_state_dict(ckpt['gp'])
         self.likelihood.load_state_dict(ckpt['likelihood'])
         self.feature_extractor.load_state_dict(ckpt['net'])
 
 class ExactGPLayer(gpytorch.models.ExactGP):
+
     def __init__(self, train_x, train_y, likelihood,config,dims ):
         super(ExactGPLayer, self).__init__(train_x, train_y, likelihood)
         self.mean_module  = gpytorch.means.ConstantMean()
 
-        ## RBF kernel
         if(config["kernel"]=='rbf' or config["kernel"]=='RBF'):
             self.covar_module = gpytorch.kernels.ScaleKernel(gpytorch.kernels.RBFKernel(ard_num_dims=dims if config["ard"] else None))
         elif(config["kernel"]=='matern'):
             self.covar_module = gpytorch.kernels.ScaleKernel(gpytorch.kernels.MaternKernel(nu=config["nu"],ard_num_dims=dims if config["ard"] else None))
-        ## Spectral kernel
         else:
             raise ValueError("[ERROR] the kernel '" + str(config["kernel"]) + "' is not supported for regression, use 'rbf' or 'spectral'.")
             
@@ -357,6 +361,7 @@ class MLP(nn.Module):
             self.fc.append(nn.Linear(in_features=self.fc[-1].out_features, out_features=d_out))
         self.out_features = hidden_size[-1]
         self.dropout = nn.Dropout(dropout)
+
     def forward(self,x):
         
         for fc in self.fc[:-1]:
