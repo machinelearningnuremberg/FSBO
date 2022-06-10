@@ -23,7 +23,7 @@ def main(args):
     log_dir = os.path.join(rootdir,"logs",seed, experiment_id, search_space_id)
     save_dir = os.path.join(rootdir,"results", seed, experiment_id, search_space_id)
     
-    hpob_hdlr = HPOBHandler(root_dir=rootdir+"/../../data/hpob-data/", mode="v3-test")
+    hpob_hdlr = HPOBHandler(root_dir=rootdir+"/hpob-data/", mode="v3-test")
     dim = hpob_hdlr.get_search_space_dim(search_space_id)
 
     os.makedirs(log_dir,exist_ok=True)

@@ -17,7 +17,7 @@ def main(args):
     torch.backends.cudnn.benchmark = False 
 
 
-    path = os.path.join(rootdir,"../..", "data","hpob-data")
+    path = os.path.join(rootdir,"hpob-data")
 
     with open(path+"/meta-validation-dataset.json", "r") as f:
         valid_data = json.load(f) 
