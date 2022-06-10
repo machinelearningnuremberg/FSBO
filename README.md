@@ -1,6 +1,6 @@
 # FSBO
 
-(**Few Shot Bayesian Optimization**)
+**Few Shot Bayesian Optimization**
 
 This Repo contains the implementation of [FSBO](https://arxiv.org/abs/2101.07667) applied to [HPO-B](https://github.com/releaunifreiburg/HPO-B) benchmark. Please download the data from the benchmark data in order to reproduce results. 
 
