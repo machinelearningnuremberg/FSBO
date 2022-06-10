@@ -1,4 +1,3 @@
-from genericpath import exists
 import torch
 from fsbo_modules import FSBO
 import numpy as np
@@ -22,14 +21,14 @@ def main(args):
 
     with open(path+"/meta-validation-dataset.json", "r") as f:
         valid_data = json.load(f) 
-        valid_data = valid_data[args.space]    
+        valid_data = valid_data[args.space_id]    
 
     with open(path+"/meta-train-dataset.json", "r") as f:
         train_data = json.load(f) 
-        train_data = train_data[args.space]
+        train_data = train_data[args.space_id]
 
     os.makedirs(os.path.join(rootdir,"checkpoints"), exist_ok=True)
-    checkpoint_path = os.path.join(rootdir,"checkpoints","FSBO2", f"{args.space}")
+    checkpoint_path = os.path.join(rootdir,"checkpoints","FSBO2", f"{args.space_id}")
     fsbo_model = FSBO(train_data = train_data, valid_data = valid_data, checkpoint_path = checkpoint_path)
     fsbo_model.meta_train(epochs=args.epochs)
 
@@ -37,7 +36,7 @@ def main(args):
 if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--space', help='Search Space Id', type=str, default="4796")
+    parser.add_argument('--space_id', help='Search Space Id', type=str, default="4796")
     parser.add_argument('--epochs', help='Meta-Train epochs', type=str, default=100000)
 
     args = parser.parse_args()
