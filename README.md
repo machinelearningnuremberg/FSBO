@@ -46,7 +46,7 @@ python fsbo_benchmark_plot.py
 
 ## Cite us
 
-This code is a refactoring of the original code used in [HPO-B](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/ec8956637a99787bd197eacd77acce5e-Abstract-round2.html) paper.
+This code is a refactoring of the original code used in [HPO-B](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/ec8956637a99787bd197eacd77acce5e-Abstract-round2.html) paper. If you use this code, please cite us:
 
 ```
 
