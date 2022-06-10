@@ -41,7 +41,7 @@ python generate_json.py
 python fsbo_benchmark_plot.py
 `
 ## Results
-**FSBO** is the model version used in the [HPO-B](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/ec8956637a99787bd197eacd77acce5e-Abstract-round2.html) paper, **FSBO2** is the model version in this refactored code-base version.
+**FSBO** is the model version used in the [HPO-B](https://datasets-benchmarks-proceedings.neurips.cc/paper/2021/hash/ec8956637a99787bd197eacd77acce5e-Abstract-round2.html) paper, **FSBO2** is the model version used in this refactored code-base.
 ![Results](plots/benchmark_aggregated.png)
 
 
