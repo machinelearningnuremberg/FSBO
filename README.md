@@ -3,6 +3,14 @@
 **Few Shot Bayesian Optimization**
 This Repo contains the implementation of [FSBO](https://arxiv.org/abs/2101.07667) applied to [HPO-B](https://github.com/releaunifreiburg/HPO-B) benchmark. Please download the data from the benchmark data in order to reproduce results. 
 
+## Folder Structure:
+
+- **./** : Main code base
+- **checkpoints** : Meta-trained models per search space with the default configuration from the code base.
+- **results** : Results after meta-testing the pretrained models
+- **benchmark_results** : JSON files for plotting
+- **plots** : Results plots
+
 ## Requirements
 
 - Gyptorch 1.4.2
