@@ -25,7 +25,7 @@ RandomTaskGenerator = np.random.RandomState(413)
 
 
 class DeepKernelGP(nn.Module):
-    
+
     def __init__(self, input_size, log_dir,seed, hidden_size = [32,32,32,32],
                          max_patience = 16, kernel="matern", ard = False, nu =2.5, loss_tol = 0.0001,
                          lr = 0.001, load_model = False, checkpoint = None, epochs = 10000,
@@ -269,7 +269,8 @@ class FSBO(nn.Module):
         self.valid_metrics.reset()       
         self.train_metrics.reset()
             
-    def test_loop(self, task, train): # no optimizer needed for GP
+    def test_loop(self, task, train): 
+        
         (x_support, y_support),(x_query,y_query) = self.get_support_and_queries(task,train)
         z_support = self.feature_extractor(x_support).detach()
         self.model.set_train_data(inputs=z_support, targets=y_support, strict=False)
