@@ -2,7 +2,10 @@
 """
 This FSBO implementation is based on the original implementation from Hadi Samer Jomaa
 for his work on "Transfer Learning for Bayesian HPO with End-to-End Landmark Meta-Features"
-at the NeurIPS 2021 MetaLearning Workshop 
+at the NeurIPS 2021 MetaLearning Workshop .
+
+The implementation for Deep Kernel Learning is based on the original Gpytorch example: 
+https://docs.gpytorch.ai/en/stable/examples/06_PyTorch_NN_Integration_DKL/KISSGP_Deep_Kernel_Regression_CUDA.html
 
 """
 
