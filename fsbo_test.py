@@ -32,7 +32,7 @@ def main(args):
     log_dir = os.path.join(log_dir, f"{dataset_id}.txt")
     save_dir = os.path.join(save_dir, f"{dataset_id}.csv")
 
-    #loads pretran model from the checkpoint "FSBO",
+    #loads pretrained model from the checkpoint "FSBO2",
     checkpoint = os.path.join(rootdir,"checkpoints",experiment_id, f"{search_space_id}")
 
     #define the DeepKernelGP as HPO method
@@ -59,7 +59,7 @@ if __name__ == "__main__":
     parser.add_argument("--dataset_id", type=str, default="3549")
     parser.add_argument("--seed", type=str, default="test1")
     parser.add_argument("--n_trials", type=int, default=20)
-    parser.add_argument("--experiment_id", type=str, default="FSBO")
+    parser.add_argument("--experiment_id", type=str, default="FSBO2")
 
     args = parser.parse_args()
     main(args)
