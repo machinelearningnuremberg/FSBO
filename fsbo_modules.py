@@ -2,7 +2,7 @@
 """
 This FSBO implementation is based on the original implementation from Hadi Samer Jomaa
 for his work on "Transfer Learning for Bayesian HPO with End-to-End Landmark Meta-Features"
-at the NeurIPS 2021 MetaLearning Workshop .
+at the NeurIPS 2021 MetaLearning Workshop 
 
 The implementation for Deep Kernel Learning is based on the original Gpytorch example: 
 https://docs.gpytorch.ai/en/stable/examples/06_PyTorch_NN_Integration_DKL/KISSGP_Deep_Kernel_Regression_CUDA.html
@@ -20,6 +20,10 @@ import time
 import gpytorch
 import logging
 from fsbo_utils import totorch, Metric, EI
+import xgboost as xgb
+import json 
+from scipy.optimize import differential_evolution
+
 
 np.random.seed(1203)
 RandomQueryGenerator= np.random.RandomState(413)
@@ -28,11 +32,10 @@ RandomTaskGenerator = np.random.RandomState(413)
 
 
 class DeepKernelGP(nn.Module):
-
     def __init__(self, input_size, log_dir,seed, hidden_size = [32,32,32,32],
                          max_patience = 16, kernel="matern", ard = False, nu =2.5, loss_tol = 0.0001,
                          lr = 0.001, load_model = False, checkpoint = None, epochs = 10000,
-                         verbose = False, eval_batch_size = 1000):
+                         verbose = False, eval_batch_size = 1000, xgb_path = None):
         super(DeepKernelGP, self).__init__()
         torch.manual_seed(seed)
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -53,6 +56,7 @@ class DeepKernelGP(nn.Module):
         self.get_model_likelihood_mll(1)
         
         logging.basicConfig(filename=log_dir, level=logging.DEBUG)
+
 
     def get_model_likelihood_mll(self, train_size):
         
@@ -114,7 +118,6 @@ class DeepKernelGP(nn.Module):
         return losses
     
     def load_checkpoint(self, checkpoint):
-
         ckpt = torch.load(checkpoint,map_location=torch.device(self.device))
         self.model.load_state_dict(ckpt['gp'],strict=False)
         self.likelihood.load_state_dict(ckpt['likelihood'],strict=False)
@@ -159,9 +162,34 @@ class DeepKernelGP(nn.Module):
 
         return candidate
 
+    def observe_and_suggest(self, X_obs, y_obs): #continuous
+
+        self.X_obs, self.y_obs = totorch(X_obs, self.device), totorch(y_obs, self.device).reshape(-1)
+        dim = len(X_obs[0])
+        best_f = torch.max(self.y_obs).item()
+  
+        self.train()
+        bounds = tuple([(0,1) for i in range(dim)])
+    
+        def acqf(x):
+            #x = np.array(x).reshape(-1,dim)
+            with torch.no_grad():
+                x = torch.Tensor(x).reshape(-1,dim).to(self.device)
+                mean, std = self.predict(x)
+            ei = EI( best_f, mean, std)
+            return -ei
+
+        new_x = self.continuous_maximization(dim, bounds, acqf)
+
+        return new_x
+
+    def continuous_maximization( self, dim, bounds, acqf):
+
+        result = differential_evolution(acqf, bounds=bounds, updating='immediate',workers=1, maxiter=20000, init="sobol")
+        return result.x.reshape(-1,dim)
+
     
 class FSBO(nn.Module):
-
     def __init__(self, train_data,valid_data, checkpoint_path, batch_size = 64, test_batch_size = 64,
                  n_inner_steps = 1, kernel = "matern", ard = False, nu=2.5, hidden_size = [32,32,32,32] ):
         super(FSBO, self).__init__()
@@ -193,7 +221,6 @@ class FSBO(nn.Module):
         
         
     def setup_writers(self,):
-
         train_log_dir = os.path.join(self.checkpoint_path,"train")
         os.makedirs(train_log_dir,exist_ok=True)
         self.train_summary_writer = SummaryWriter(train_log_dir)
@@ -233,6 +260,7 @@ class FSBO(nn.Module):
             self.train_loop(epoch, optimizer, scheduler)
         
     def train_loop(self, epoch, optimizer, scheduler=None):
+        
 
         self.epoch_end()
         assert(self.training)
@@ -273,7 +301,6 @@ class FSBO(nn.Module):
         self.train_metrics.reset()
             
     def test_loop(self, task, train): 
-        
         (x_support, y_support),(x_query,y_query) = self.get_support_and_queries(task,train)
         z_support = self.feature_extractor(x_support).detach()
         self.model.set_train_data(inputs=z_support, targets=y_support, strict=False)
@@ -306,7 +333,8 @@ class FSBO(nn.Module):
         return inputs, labels
         
     def get_support_and_queries(self,task, train=False):
-                
+        
+
         hpo_data = self.valid_data if not train else self.train_data
         Lambda,response =     np.array(hpo_data[task]["X"]), MinMaxScaler().fit_transform(np.array(hpo_data[task]["y"])).reshape(-1,)
         card, dim = Lambda.shape
@@ -330,14 +358,12 @@ class FSBO(nn.Module):
         torch.save({'gp': gp_state_dict, 'likelihood': likelihood_state_dict, 'net':nn_state_dict}, checkpoint)
 
     def load_checkpoint(self, checkpoint):
-
         ckpt = torch.load(checkpoint)
         self.model.load_state_dict(ckpt['gp'])
         self.likelihood.load_state_dict(ckpt['likelihood'])
         self.feature_extractor.load_state_dict(ckpt['net'])
 
 class ExactGPLayer(gpytorch.models.ExactGP):
-
     def __init__(self, train_x, train_y, likelihood,config,dims ):
         super(ExactGPLayer, self).__init__(train_x, train_y, likelihood)
         self.mean_module  = gpytorch.means.ConstantMean()
@@ -365,7 +391,6 @@ class MLP(nn.Module):
             self.fc.append(nn.Linear(in_features=self.fc[-1].out_features, out_features=d_out))
         self.out_features = hidden_size[-1]
         self.dropout = nn.Dropout(dropout)
-
     def forward(self,x):
         
         for fc in self.fc[:-1]:
