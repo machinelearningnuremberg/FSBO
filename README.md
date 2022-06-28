@@ -46,7 +46,7 @@ python fsbo_benchmark_plot.py
 ![Results](plots/discrete_benchmark_aggregated.png)
 
 ## Results in Continuous Space
-![Results](plots/continous_benchmark_aggregated.png)
+![Results](plots/continuous_benchmark_aggregated.png)
 
 ## Cite us
 
