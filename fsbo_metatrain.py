@@ -37,7 +37,7 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--space_id', help='Search Space Id', type=str, default="4796")
-    parser.add_argument('--epochs', help='Meta-Train epochs', type=str, default=100000)
+    parser.add_argument('--epochs', help='Meta-Train epochs', type=int, default=100000)
 
     args = parser.parse_args()
 
