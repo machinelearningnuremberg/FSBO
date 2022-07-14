@@ -14,7 +14,7 @@ This Repo contains the implementation of [FSBO](https://arxiv.org/abs/2101.07667
 
 ## Requirements
 
-- Gyptorch 1.4.2
+- Gpytorch 1.4.2
 - Pytorch 1.8.1
 - Numpy 1.20.3
 
