@@ -2,7 +2,7 @@
 
 **Few Shot Bayesian Optimization**
 
-This Repo contains the implementation of [FSBO](https://arxiv.org/abs/2101.07667) applied to [HPO-B](https://github.com/releaunifreiburg/HPO-B) benchmark. Please download the data from the benchmark data in order to reproduce results. 
+This Repo contains the implementation of [FSBO](https://arxiv.org/abs/2101.07667) applied to the [HPO-B](https://github.com/releaunifreiburg/HPO-B) benchmark. Please download the data from the benchmark in order to reproduce results. 
 
 ## Folder Structure:
 
@@ -14,7 +14,7 @@ This Repo contains the implementation of [FSBO](https://arxiv.org/abs/2101.07667
 
 ## Requirements
 
-- Gyptorch 1.4.2
+- Gpytorch 1.4.2
 - Pytorch 1.8.1
 - Numpy 1.20.3
 
