@@ -146,6 +146,7 @@ class DeepKernelGP(nn.Module):
     def observe_and_suggest(self, X_obs, y_obs, X_pen = None):
 
         if X_pen is not None:
+            
             self.X_obs, self.y_obs, X_pen = totorch(X_obs, self.device), totorch(y_obs, self.device).reshape(-1), totorch(X_pen, self.device)
             n_samples = len(X_pen)
             scores = []
