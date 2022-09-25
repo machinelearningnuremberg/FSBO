@@ -143,45 +143,46 @@ class DeepKernelGP(nn.Module):
         
         return mu,stddev
 
-    def observe_and_suggest(self, X_obs, y_obs, X_pen):
+    def observe_and_suggest(self, X_obs, y_obs, X_pen = None):
 
-        self.X_obs, self.y_obs, X_pen = totorch(X_obs, self.device), totorch(y_obs, self.device).reshape(-1), totorch(X_pen, self.device)
-        n_samples = len(X_pen)
-        scores = []
+        if X_pen is not None:
+            self.X_obs, self.y_obs, X_pen = totorch(X_obs, self.device), totorch(y_obs, self.device).reshape(-1), totorch(X_pen, self.device)
+            n_samples = len(X_pen)
+            scores = []
 
-        self.train()
+            self.train()
 
-        for i in range(self.eval_batch_size, n_samples+self.eval_batch_size, self.eval_batch_size):
-            temp_X = X_pen[range(i-self.eval_batch_size,min(i,n_samples))]
-            mu, stddev = self.predict(temp_X)
-            score   =  EI(max(y_obs), mu, stddev)
-            scores += score.tolist()
+            for i in range(self.eval_batch_size, n_samples+self.eval_batch_size, self.eval_batch_size):
+                temp_X = X_pen[range(i-self.eval_batch_size,min(i,n_samples))]
+                mu, stddev = self.predict(temp_X)
+                score   =  EI(max(y_obs), mu, stddev)
+                scores += score.tolist()
 
-        scores = np.array(scores)
-        candidate = np.argmax(scores) 
+            scores = np.array(scores)
+            candidate = np.argmax(scores) 
 
-        return candidate
+            return candidate
 
-    def observe_and_suggest(self, X_obs, y_obs): #continuous
+        else: #continuous
 
-        self.X_obs, self.y_obs = totorch(X_obs, self.device), totorch(y_obs, self.device).reshape(-1)
-        dim = len(X_obs[0])
-        best_f = torch.max(self.y_obs).item()
-  
-        self.train()
-        bounds = tuple([(0,1) for i in range(dim)])
+            self.X_obs, self.y_obs = totorch(X_obs, self.device), totorch(y_obs, self.device).reshape(-1)
+            dim = len(X_obs[0])
+            best_f = torch.max(self.y_obs).item()
     
-        def acqf(x):
-            #x = np.array(x).reshape(-1,dim)
-            with torch.no_grad():
-                x = torch.Tensor(x).reshape(-1,dim).to(self.device)
-                mean, std = self.predict(x)
-            ei = EI( best_f, mean, std)
-            return -ei
+            self.train()
+            bounds = tuple([(0,1) for i in range(dim)])
+        
+            def acqf(x):
+                #x = np.array(x).reshape(-1,dim)
+                with torch.no_grad():
+                    x = torch.Tensor(x).reshape(-1,dim).to(self.device)
+                    mean, std = self.predict(x)
+                ei = EI( best_f, mean, std)
+                return -ei
 
-        new_x = self.continuous_maximization(dim, bounds, acqf)
+            new_x = self.continuous_maximization(dim, bounds, acqf)
 
-        return new_x
+            return new_x
 
     def continuous_maximization( self, dim, bounds, acqf):
 
