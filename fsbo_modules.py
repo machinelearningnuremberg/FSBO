@@ -52,11 +52,9 @@ class DeepKernelGP(nn.Module):
         self.verbose = verbose
         self.loss_tol = loss_tol
         self.eval_batch_size = eval_batch_size
-
         self.get_model_likelihood_mll(1)
         
         logging.basicConfig(filename=log_dir, level=logging.DEBUG)
-
 
     def get_model_likelihood_mll(self, train_size):
         
@@ -69,16 +67,13 @@ class DeepKernelGP(nn.Module):
         self.likelihood = likelihood.to(self.device)
         self.mll        = gpytorch.mlls.ExactMarginalLogLikelihood(likelihood, model).to(self.device)
 
-
-
     def train(self):
 
         if self.load_model:
             assert(self.checkpoint is not None)
             print("Model_loaded")
             self.load_checkpoint(os.path.join(self.checkpoint,"weights"))
-            
-
+           
         losses = [np.inf]
         best_loss = np.inf
         starttime = time.time()
@@ -123,7 +118,6 @@ class DeepKernelGP(nn.Module):
         self.likelihood.load_state_dict(ckpt['likelihood'],strict=False)
         self.feature_extractor.load_state_dict(ckpt['net'],strict=False)
         
-
     def predict(self, X_pen):
         
         self.model.eval()
@@ -220,8 +214,7 @@ class FSBO(nn.Module):
         logging.basicConfig(filename=os.path.join(self.checkpoint_path,"log.txt"), level=logging.DEBUG)
 
         print(self)
-        
-        
+           
     def setup_writers(self,):
         train_log_dir = os.path.join(self.checkpoint_path,"train")
         os.makedirs(train_log_dir,exist_ok=True)
@@ -236,7 +229,6 @@ class FSBO(nn.Module):
         self.tasks = list(self.train_data.keys())
         self.valid_tasks = list(self.valid_data.keys())
         
-
     def get_model_likelihood_mll(self, train_size):
         
         train_x=torch.ones(train_size, self.feature_extractor.out_features).to(self.device)
@@ -248,10 +240,8 @@ class FSBO(nn.Module):
         self.likelihood = likelihood.to(self.device)
         self.mll        = gpytorch.mlls.ExactMarginalLogLikelihood(likelihood, model).to(self.device)
 
-
     def epoch_end(self):
         RandomTaskGenerator.shuffle(self.tasks)
-
 
     def meta_train(self, epochs = 50000, lr = 0.0001):
 
@@ -262,8 +252,7 @@ class FSBO(nn.Module):
             self.train_loop(epoch, optimizer, scheduler)
         
     def train_loop(self, epoch, optimizer, scheduler=None):
-        
-
+       
         self.epoch_end()
         assert(self.training)
         for task in self.tasks:
@@ -366,6 +355,7 @@ class FSBO(nn.Module):
         self.feature_extractor.load_state_dict(ckpt['net'])
 
 class ExactGPLayer(gpytorch.models.ExactGP):
+    
     def __init__(self, train_x, train_y, likelihood,config,dims ):
         super(ExactGPLayer, self).__init__(train_x, train_y, likelihood)
         self.mean_module  = gpytorch.means.ConstantMean()
@@ -384,6 +374,7 @@ class ExactGPLayer(gpytorch.models.ExactGP):
     
 
 class MLP(nn.Module):
+    
     def __init__(self, input_size, hidden_size=[32,32,32,32], dropout=0.0):
         
         super(MLP, self).__init__()
