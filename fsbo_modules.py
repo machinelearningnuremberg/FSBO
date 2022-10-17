@@ -68,7 +68,6 @@ class DeepKernelGP(nn.Module):
         self.mll        = gpytorch.mlls.ExactMarginalLogLikelihood(likelihood, model).to(self.device)
 
     def train(self):
-
         if self.load_model:
             assert(self.checkpoint is not None)
             print("Model_loaded")
@@ -119,7 +118,6 @@ class DeepKernelGP(nn.Module):
         self.feature_extractor.load_state_dict(ckpt['net'],strict=False)
         
     def predict(self, X_pen):
-        
         self.model.eval()
         self.feature_extractor.eval()
         self.likelihood.eval()        
@@ -138,13 +136,10 @@ class DeepKernelGP(nn.Module):
         return mu,stddev
 
     def observe_and_suggest(self, X_obs, y_obs, X_pen = None):
-
         if X_pen is not None:
-            
             self.X_obs, self.y_obs, X_pen = totorch(X_obs, self.device), totorch(y_obs, self.device).reshape(-1), totorch(X_pen, self.device)
             n_samples = len(X_pen)
             scores = []
-
             self.train()
 
             for i in range(self.eval_batch_size, n_samples+self.eval_batch_size, self.eval_batch_size):
@@ -159,7 +154,6 @@ class DeepKernelGP(nn.Module):
             return candidate
 
         else: #continuous
-
             self.X_obs, self.y_obs = totorch(X_obs, self.device), totorch(y_obs, self.device).reshape(-1)
             dim = len(X_obs[0])
             best_f = torch.max(self.y_obs).item()
@@ -180,7 +174,6 @@ class DeepKernelGP(nn.Module):
             return new_x
 
     def continuous_maximization( self, dim, bounds, acqf):
-
         result = differential_evolution(acqf, bounds=bounds, updating='immediate',workers=1, maxiter=20000, init="sobol")
         return result.x.reshape(-1,dim)
 
@@ -225,15 +218,12 @@ class FSBO(nn.Module):
         self.valid_summary_writer = SummaryWriter(valid_log_dir)        
         
     def get_tasks(self,):
-
         self.tasks = list(self.train_data.keys())
         self.valid_tasks = list(self.valid_data.keys())
         
     def get_model_likelihood_mll(self, train_size):
-        
         train_x=torch.ones(train_size, self.feature_extractor.out_features).to(self.device)
         train_y=torch.ones(train_size).to(self.device)
-
         likelihood = gpytorch.likelihoods.GaussianLikelihood()
         model = ExactGPLayer(train_x = train_x, train_y = train_y, likelihood = likelihood, config = self.kernel_config, dims = self.feature_extractor.out_features)
         self.model = model.to(self.device)
@@ -244,15 +234,12 @@ class FSBO(nn.Module):
         RandomTaskGenerator.shuffle(self.tasks)
 
     def meta_train(self, epochs = 50000, lr = 0.0001):
-
         optimizer = torch.optim.Adam(self.parameters(), lr=lr)
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, epochs, eta_min=1e-7)
-
         for epoch in range(epochs):
             self.train_loop(epoch, optimizer, scheduler)
         
     def train_loop(self, epoch, optimizer, scheduler=None):
-       
         self.epoch_end()
         assert(self.training)
         for task in self.tasks:
@@ -310,11 +297,8 @@ class FSBO(nn.Module):
         return mse,loss
 
     def get_batch(self,task):
-
         Lambda,response =     np.array(self.train_data[task]["X"]), MinMaxScaler().fit_transform(np.array(self.train_data[task]["y"])).reshape(-1,)
-
         card, dim = Lambda.shape
-        
         support_ids = RandomSupportGenerator.choice(np.arange(card),
                                               replace=False,size= min(self.batch_size, card))
 
@@ -324,8 +308,6 @@ class FSBO(nn.Module):
         return inputs, labels
         
     def get_support_and_queries(self,task, train=False):
-        
-
         hpo_data = self.valid_data if not train else self.train_data
         Lambda,response =     np.array(hpo_data[task]["X"]), MinMaxScaler().fit_transform(np.array(hpo_data[task]["y"])).reshape(-1,)
         card, dim = Lambda.shape
@@ -342,7 +324,6 @@ class FSBO(nn.Module):
     (totorch(query_x,self.device),totorch(query_y.reshape(-1,),self.device))
         
     def save_checkpoint(self, checkpoint):
-
         gp_state_dict         = self.model.state_dict()
         likelihood_state_dict = self.likelihood.state_dict()
         nn_state_dict         = self.feature_extractor.state_dict()
@@ -355,7 +336,6 @@ class FSBO(nn.Module):
         self.feature_extractor.load_state_dict(ckpt['net'])
 
 class ExactGPLayer(gpytorch.models.ExactGP):
-    
     def __init__(self, train_x, train_y, likelihood,config,dims ):
         super(ExactGPLayer, self).__init__(train_x, train_y, likelihood)
         self.mean_module  = gpytorch.means.ConstantMean()
@@ -374,9 +354,7 @@ class ExactGPLayer(gpytorch.models.ExactGP):
     
 
 class MLP(nn.Module):
-    
     def __init__(self, input_size, hidden_size=[32,32,32,32], dropout=0.0):
-        
         super(MLP, self).__init__()
         self.nonlinearity = nn.ReLU()
         self.fc = nn.ModuleList([nn.Linear(in_features=input_size, out_features=hidden_size[0])])
@@ -384,8 +362,8 @@ class MLP(nn.Module):
             self.fc.append(nn.Linear(in_features=self.fc[-1].out_features, out_features=d_out))
         self.out_features = hidden_size[-1]
         self.dropout = nn.Dropout(dropout)
-    def forward(self,x):
         
+    def forward(self,x):
         for fc in self.fc[:-1]:
             x = fc(x)
             x = self.dropout(x)
